@@ -26,11 +26,19 @@ unsigned char* editImage(unsigned char* input) {
 			Mesto za proizvoljno testiranje koda.
 			Vrsi editovanje slike MyExample.bmp i stvara izlazni fajl MyExample_RESULT.bmp
 		*/
+
 		imageEditor->loadImage(input);
-		//imageEditor->addLayer();
-		imageEditor->setActiveColor("#FFFF00");
-		imageEditor->fillRect(32, 32, 64, 64);
-		//imageEditor->flipHorizontal();
+		imageEditor->addLayer();
+		imageEditor->setActiveColor("#FFABCC");
+		imageEditor->fillRect(150, 150, 100, 100);
+		imageEditor->flipHorizontal();
+		imageEditor->addLayer();
+		imageEditor->setLayerOpacity(50);
+		imageEditor->setActiveColor("#ABAB56");
+		imageEditor->fillRect(32, 32, 150, 150);
+		imageEditor->eraseRect(48, 48, 32, 32);
+		imageEditor->crop(50, 50, 600, 600);
+		imageEditor->flipVertical();
 		output = imageEditor->saveImage();
 		break;
 	case 1:																//check
@@ -119,7 +127,7 @@ unsigned char* editImage(unsigned char* input) {
 int main() {
 
 	// Ova for petlja ce da pokrene sve testove [0 - 12]. Modifikujte uslov za 'if' da biste pokretali samo odredjene testove (npr: if(testNumber == 1 || testNumber == 5)).
-	for(testNumber = 1; testNumber <= numberOfTests; testNumber++)
+	for(testNumber = 0; testNumber <= numberOfTests; testNumber++)
 		if(testNumber == testNumber) test();
 
 	return 0;

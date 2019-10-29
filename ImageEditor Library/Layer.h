@@ -10,21 +10,24 @@ public:
 	~Layer();
 
 	int opacity;
-	int layerHeight;
+	int width, height;
 	Pixel **(*layerMatrix);
 	Layer* next;
 	Layer* prev;
 };
 
-/*
-class LayerNode
+
+class LayerMatrix
 {
 public:
-	LayerNode(int height, int width);
+	LayerMatrix(int height, int width);
+	~LayerMatrix();
+	Pixel **(*layerMatrix);
 
-	Layer layer;
-	LayerNode* next;
-	LayerNode* prev;
-};*/
+private:
+	int height;
+	int width;
+	
+};
 
 #endif
