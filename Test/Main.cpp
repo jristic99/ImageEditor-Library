@@ -31,6 +31,7 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->addLayer();
 		imageEditor->setActiveColor("#FFABCC");
 		imageEditor->fillRect(150, 150, 100, 100);
+		imageEditor->blur(15);
 		imageEditor->flipHorizontal();
 		imageEditor->addLayer();
 		imageEditor->setLayerOpacity(50);
@@ -39,6 +40,10 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->eraseRect(48, 48, 32, 32);
 		imageEditor->crop(50, 50, 600, 600);
 		imageEditor->flipVertical();
+		imageEditor->selectLayer(0);
+		imageEditor->invertColors();
+		imageEditor->blur(5);
+
 		output = imageEditor->saveImage();
 		break;
 	case 1:																//check

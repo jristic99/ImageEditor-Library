@@ -254,8 +254,7 @@ void ImageEditor::blur(int size)
 				if (cnt > 0)
 				{
 					int d;
-					if(activeLayer != layerList) d = size * size;
-					else d = cnt;
+					d = cnt;
 					sumB = (int)(sumB / d);
 					sumG = (int)(sumG / d);
 					sumR = (int)(sumR / d);
@@ -280,8 +279,15 @@ void ImageEditor::blur(int size)
 			}
 
 	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+			if (newMatrix[i][j])
+			{
+				delete newMatrix[i][j];
+				newMatrix[i][j] = nullptr;
+			}
 		delete[] newMatrix[i];
-	delete[] newMatrix;
+	}
 }
 
 void ImageEditor::flipVertical()
