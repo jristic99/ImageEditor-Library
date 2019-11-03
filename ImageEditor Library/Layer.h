@@ -16,18 +16,4 @@ public:
 	Layer* prev;
 };
 
-
-class LayerMatrix
-{
-public:
-	LayerMatrix(int height, int width);
-	~LayerMatrix();
-	Pixel **(*layerMatrix);
-
-private:
-	int height;
-	int width;
-	
-};
-
 #endif

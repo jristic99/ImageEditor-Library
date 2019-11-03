@@ -37,8 +37,8 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->setLayerOpacity(50);
 		imageEditor->setActiveColor("#ABAB56");
 		imageEditor->fillRect(32, 32, 150, 150);
-		imageEditor->eraseRect(48, 48, 32, 32);
-		imageEditor->crop(50, 50, 600, 600);
+		imageEditor->eraseRect(32, 32, 55, 55);
+		imageEditor->crop(10, 10, 50, 50);
 		imageEditor->flipVertical();
 		imageEditor->selectLayer(0);
 		imageEditor->invertColors();

@@ -50,10 +50,6 @@ private:
 	bool readPixels(unsigned char * image, int curr);
 	int calculateImageSize();
 	void addFirstLayer();
-	//void updatePixelValues();
 };
-
-
-
 
 #endif

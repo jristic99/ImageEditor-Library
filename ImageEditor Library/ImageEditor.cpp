@@ -14,13 +14,9 @@ ImageEditor::ImageEditor()
 
 ImageEditor::~ImageEditor()
 {
-	/*for (int i = 0; i < height; i++)
-		free(matrix[i]);
-	free(matrix);*/
-
-	for (int i = 0; i < height; i++)
-		delete[] matrix[i];
-	delete[] matrix;
+	name = "";
+	//string *tmp = &name;
+    //delete tmp;
 
 	Layer *p = layerList;
 	while(p)
@@ -29,7 +25,10 @@ ImageEditor::~ImageEditor()
 		p = p->next;
 		delete tmp;
 	}
-		
+
+	for (int i = 0; i < height; i++)
+		delete[] matrix[i];
+	delete[] matrix;
 }
 
 bool ImageEditor::loadImage(unsigned char * image)
@@ -57,16 +56,6 @@ bool ImageEditor::loadImage(unsigned char * image)
 		cout << "Error in reading image";
 		return false;
 	}
-	
-	/*int br = 0;
-	unsigned char *image1 = saveImage();
-	int imageSize = calculateImageSize();
-	for (int i = 0; i < imageSize + 5; i++)
-		if (image[i] != image1[i])
-		{
-			br++;
-			cout << i << " ";
-		}*/
 
 	addFirstLayer();
 	return true;
@@ -78,7 +67,7 @@ unsigned char * ImageEditor::saveImage()
 
 	int imageSize = calculateImageSize();
 
-	unsigned char *image = (unsigned char*)calloc(imageSize, sizeof(char));
+	unsigned char *image = new unsigned char[imageSize];
 
 	image[0] = 'B';
 	image[1] = 'M';
@@ -151,7 +140,7 @@ void ImageEditor::deleteLayer()
 
 		Layer *old = activeLayer;
 		activeLayer = tmp;
-		old->~Layer();
+		delete old;
 	}
 	else
 	{
@@ -227,8 +216,7 @@ void ImageEditor::blur(int size)
 	for (int i = 0; i < height; i++)
 		newMatrix[i] = new Pixel*[width];
 
-
-	for (int i = height - 1; i >= 0; i--)
+	for (int i = 0; i < height; i++)
 		for (int j = 0; j < width; j++)
 			{
 				int sumB = 0;
@@ -253,29 +241,29 @@ void ImageEditor::blur(int size)
 
 				if (cnt > 0)
 				{
-					int d;
-					d = cnt;
+					int d = cnt;
 					sumB = (int)(sumB / d);
 					sumG = (int)(sumG / d);
 					sumR = (int)(sumR / d);
 
-					Pixel *pixel = new Pixel((unsigned char)sumB, (unsigned char)sumG, (unsigned char)sumR);
-					newMatrix[i][j] = pixel;
+					newMatrix[i][j] = new Pixel((unsigned char)sumB, (unsigned char)sumG, (unsigned char)sumR);
 				}
-				else newMatrix[i][j] = NULL;
+				else newMatrix[i][j] = nullptr;
 			}
 
-	for (int i = height - 1; i >= 0; i--)
+	Layer *curr = activeLayer;
+
+	for (int i = 0; i < height; i++)
 		for (int j = 0; j < width; j++)
-			if (activeLayer->layerMatrix[i][j])
+			if (curr->layerMatrix[i][j])
 			{
-				(*activeLayer->layerMatrix[i][j]).b = (*newMatrix[i][j]).b;
-				(*activeLayer->layerMatrix[i][j]).g = (*newMatrix[i][j]).g;
-				(*activeLayer->layerMatrix[i][j]).r = (*newMatrix[i][j]).r;
-			}
-			else if (newMatrix[i][j])
-			{
-				activeLayer->layerMatrix[i][j] = new Pixel((*newMatrix[i][j]).b, (*newMatrix[i][j]).g, (*newMatrix[i][j]).r);
+				(*curr->layerMatrix[i][j]).b = (*newMatrix[i][j]).b;
+				(*curr->layerMatrix[i][j]).r = (*newMatrix[i][j]).r;
+				(*curr->layerMatrix[i][j]).g = (*newMatrix[i][j]).g;
+
+				/*delete curr->layerMatrix[i][j];
+				curr->layerMatrix[i][j] = newMatrix[i][j];
+				newMatrix[i][j] =  nullptr;*/
 			}
 
 	for (int i = 0; i < height; i++)
@@ -288,116 +276,29 @@ void ImageEditor::blur(int size)
 			}
 		delete[] newMatrix[i];
 	}
+	delete[] newMatrix;
 }
 
 void ImageEditor::flipVertical()
 {
-	Layer *curr = layerList;
-
-	Pixel **(*newMatrix);
-	newMatrix = new Pixel**[height];
-
-	for (int i = 0; i < height; i++)
-		newMatrix[i] = new Pixel*[width];
-
-	while (curr)
-	{
-		for (int i = 0; i < height; i++)
-			for (int j = 0; j < width; j++)
-			{
-				if (curr->layerMatrix[i][j])
-				{
-					int blue = (*curr->layerMatrix[i][j]).b;
-					int green = (*curr->layerMatrix[i][j]).g;
-					int red = (*curr->layerMatrix[i][j]).r;
-					Pixel *pixel = new Pixel(blue, green, red);
-
-					newMatrix[height - 1 - i][j] = pixel;
-				}
-				else newMatrix[height - 1 - i][j] = nullptr;
-			}
-
-		for (int i = height - 1; i >= 0; i--)
-			for (int j = 0; j < width; j++)
-				if (newMatrix[i][j] && curr->layerMatrix[i][j])
-				{
-					(*curr->layerMatrix[i][j]).b = (*newMatrix[i][j]).b;
-					(*curr->layerMatrix[i][j]).g = (*newMatrix[i][j]).g;
-					(*curr->layerMatrix[i][j]).r = (*newMatrix[i][j]).r;
-				}
-				else if (newMatrix[i][j])
-				{
-					curr->layerMatrix[i][j] = new Pixel((*newMatrix[i][j]).b, (*newMatrix[i][j]).g, (*newMatrix[i][j]).r);
-				}
-				else curr->layerMatrix[i][j] = nullptr;
-		curr = curr->next;
-	}
-
-	for (int i = 0; i < height; i++)
-	{
+	for (int i = 0; i < height / 2; i++)
 		for (int j = 0; j < width; j++)
-			if (newMatrix[i][j])
-			{
-				delete newMatrix[i][j];
-				newMatrix[i][j] = nullptr;
-			}
-		delete[] newMatrix[i];
-	}
+		{
+			Pixel *tmp = activeLayer->layerMatrix[i][j];
+			activeLayer->layerMatrix[i][j] = activeLayer->layerMatrix[height - 1 - i][j];
+			activeLayer->layerMatrix[height - 1 - i][j] = tmp;
+		}
 }
 
 void ImageEditor::flipHorizontal()
 {
-	Layer *curr = layerList;
-
-	Pixel **(*newMatrix);
-	newMatrix = new Pixel**[height];
-
 	for (int i = 0; i < height; i++)
-		newMatrix[i] = new Pixel*[width];
-
-	while (curr)
-	{
-		for (int i = 0; i < height; i++)
-			for (int j = 0; j < width; j++)
-			{
-				if (curr->layerMatrix[i][j] != nullptr)
-				{
-					int blue = (*curr->layerMatrix[i][j]).b;
-					int green = (*curr->layerMatrix[i][j]).g;
-					int red = (*curr->layerMatrix[i][j]).r;
-					Pixel *pixel = new Pixel(blue, green, red);
-
-					newMatrix[i][width - 1 -j] = pixel;
-				}
-				else newMatrix[i][width - 1 - j] = NULL;
-			}
-
-		for (int i = height - 1; i >= 0; i--)
-			for (int j = 0; j < width; j++)
-				if (newMatrix[i][j] && curr->layerMatrix[i][j])
-				{
-					(*curr->layerMatrix[i][j]).b = (*newMatrix[i][j]).b;
-					(*curr->layerMatrix[i][j]).g = (*newMatrix[i][j]).g;
-					(*curr->layerMatrix[i][j]).r = (*newMatrix[i][j]).r;
-				}
-				else if (newMatrix[i][j])
-				{
-					curr->layerMatrix[i][j] = new Pixel((*newMatrix[i][j]).b, (*newMatrix[i][j]).g, (*newMatrix[i][j]).r);
-				}
-				else curr->layerMatrix[i][j] = nullptr;
-		curr = curr->next;
-	}
-
-	for (int i = 0; i < height; i++)
-	{
-		for (int j = 0; j < width; j++)
-			if (newMatrix[i][j])
-			{
-				delete newMatrix[i][j];
-				newMatrix[i][j] = nullptr;
-			}
-		delete[] newMatrix[i];
-	}
+		for (int j = 0; j < width/2; j++)
+		{
+			Pixel *tmp = activeLayer->layerMatrix[i][j];
+			activeLayer->layerMatrix[i][j] = activeLayer->layerMatrix[i][width - 1 - j];
+			activeLayer->layerMatrix[i][width - 1 - j] = tmp;
+		}
 }
 
 void ImageEditor::crop(int x, int y, int w, int h)
@@ -416,16 +317,19 @@ void ImageEditor::crop(int x, int y, int w, int h)
 	int newW = right - left;
 	int newH = down - up;
 
-	Pixel **(*newMatrix);
-	newMatrix = new Pixel**[h];
-
-	for (int i = 0; i < newH; i++)
-		newMatrix[i] = new Pixel*[w];
-	
-	//LayerMatrix temp = LayerMatrix(newH, newW);
 
 	while (curr)
 	{
+		Pixel **(*newMatrix);
+		newMatrix = new Pixel**[newH];
+
+		for (int i = 0; i < newH; i++)
+			newMatrix[i] = new Pixel*[newW];
+
+		for (int i = 0; i < newH; i++)
+			for (int j = 0; j < newW; j++)
+				newMatrix[i][j] = nullptr;
+
 		for (int i = up; i < down; i++)
 		{
 			for (int j = left; j < right; j++)
@@ -434,19 +338,30 @@ void ImageEditor::crop(int x, int y, int w, int h)
 					int blue = (*curr->layerMatrix[i][j]).b;
 					int green = (*curr->layerMatrix[i][j]).g;
 					int red = (*curr->layerMatrix[i][j]).r;
-					Pixel *pixel = new Pixel(blue, green, red);
 
-					newMatrix[i - up][j - left] = pixel;
+					//newMatrix[i - up][j - left] = new Pixel(blue, green, red);
+
+					newMatrix[i - up][j - left] = curr->layerMatrix[i][j];
+					curr->layerMatrix[i][j] = nullptr;
 				}
 				else newMatrix[i - up][j - left] = nullptr;
 		}
+
 		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+				if (curr->layerMatrix[i][j])
+				{
+					delete curr->layerMatrix[i][j];
+					curr->layerMatrix[i][j] = nullptr;
+				}
 			delete[] curr->layerMatrix[i];
+		}
 		delete[] curr->layerMatrix;
 
-		curr->layerMatrix = new Pixel**[h];
+		curr->layerMatrix = new Pixel**[newH];
 		for (int i = 0; i < newH; i++)
-			curr->layerMatrix[i] = new Pixel*[w];
+			curr->layerMatrix[i] = new Pixel*[newW];
 
 		for (int i = 0; i < newH; i++)
 			for (int j = 0; j < newW; j++)
@@ -454,39 +369,42 @@ void ImageEditor::crop(int x, int y, int w, int h)
 
 		for (int i = 0; i < newH; i++)
 			for (int j = 0; j < newW; j++)
-				if (newMatrix[i][j] && curr->layerMatrix[i][j])
+				if (newMatrix[i][j])
 				{
-					(*curr->layerMatrix[i][j]).b = (*newMatrix[i][j]).b;
-					(*curr->layerMatrix[i][j]).g = (*newMatrix[i][j]).g;
-					(*curr->layerMatrix[i][j]).r = (*newMatrix[i][j]).r;
+					int blue = (*newMatrix[i][j]).b;
+					int red = (*newMatrix[i][j]).r;
+					int green = (*newMatrix[i][j]).g;
+
+					curr->layerMatrix[i][j] = new Pixel(blue, green, red);
+				} else curr->layerMatrix[i][j] = nullptr;
+
+				for (int i = 0; i < newH; i++)
+				{
+					for (int j = 0; j < newW; j++)
+						if (newMatrix[i][j])
+						{
+							delete newMatrix[i][j];
+							newMatrix[i][j] = nullptr;
+						}
+					delete[] newMatrix[i];
 				}
-				else if (newMatrix[i][j])
-					curr->layerMatrix[i][j] = new Pixel((*newMatrix[i][j]).b, (*newMatrix[i][j]).g, (*newMatrix[i][j]).r);
-				else curr->layerMatrix[i][j] = nullptr;
-		//curr->layerMatrix = newMatrix;
+				delete[] newMatrix;
+
+		curr->height = newH;
+		curr->width = newW;
+
 		curr = curr->next;
-	}
+	}	
 
-	/*for (int i = 0; i < newH; i++)
-		delete[] newMatrix[i];
-	delete[] newMatrix;*/
 
-	for (int i = 0; i < newH; i++)
-	{
-		for (int j = 0; j < newW; j++)
-			if (newMatrix[i][j])
-			{
-				delete newMatrix[i][j];
-				newMatrix[i][j] = nullptr;
-			}
-		delete[] newMatrix[i];
-	}
-	delete[] newMatrix;
-	//temp.~LayerMatrix();
-
+	for (int i = 0; i < height; i++)
+		delete[] matrix[i];
+	delete[] matrix;
 
 	this->height = newH;
 	this->width = newW;
+
+	allocateMatrix();
 }
 
 void ImageEditor::setActiveColor(string hex)
@@ -519,7 +437,9 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 
 	for (int i = left; i < right; i++)
 		for (int j = up; j < down; j++)
-			activeLayer->layerMatrix[i][j] = currentEditor;
+			activeLayer->layerMatrix[i][j] = new Pixel((*currentEditor).b, (*currentEditor).g, (*currentEditor).r);
+		
+	delete currentEditor;
 }
 
 void ImageEditor::eraseRect(int x, int y, int w, int h)
@@ -538,8 +458,11 @@ void ImageEditor::eraseRect(int x, int y, int w, int h)
 		for (int i = up; i < down; i++)
 			for (int j = left; j < right; j++)
 			{
-				if (activeLayer->layerMatrix[i][j] != NULL)
+				if (activeLayer->layerMatrix[i][j])
+				{
+					delete activeLayer->layerMatrix[i][j];
 					activeLayer->layerMatrix[i][j] = NULL;
+				}
 			}
 	}
 	
@@ -553,7 +476,7 @@ int ImageEditor::readName(unsigned char * image)
 	{
 		for (int i = curr + 1; image[i] != '='; i++)
 		{
-			name += image[i];
+			name += static_cast<char>(image[i]);
 			curr = i;
 		}
 		curr = curr + 2;
@@ -589,7 +512,6 @@ bool ImageEditor::allocateMatrix()
 	{
 		return false;
 	}
-
 }
 
 bool ImageEditor::readPixels(unsigned char * image, int curr)
@@ -609,7 +531,6 @@ bool ImageEditor::readPixels(unsigned char * image, int curr)
 	}
 	catch(...)
 	{
-		//this->~ImageEditor();
 		return false;
 	}
 
@@ -638,9 +559,15 @@ int ImageEditor::calculateImageSize()
 void ImageEditor::addFirstLayer()
 {
 	Layer *newLayer = new Layer(this->height, this->width);
-	for (int i = height - 1; i >= 0; i--)
+	for (int i = 0; i < height; i++)
 		for (int j = 0; j < width; j++)
-			newLayer->layerMatrix[i][j] = &matrix[i][j];
+		{
+			int red = matrix[i][j].r;
+			int blue = matrix[i][j].b;
+			int green = matrix[i][j].g;
+
+			newLayer->layerMatrix[i][j] = new Pixel(blue, green, red);
+		}
 
 	cntLayers++;
 	layerList = newLayer;
