@@ -28,21 +28,35 @@ unsigned char* editImage(unsigned char* input) {
 		*/
 
 		imageEditor->loadImage(input);
-		imageEditor->addLayer();
-		imageEditor->setActiveColor("#FFABCC");
+		imageEditor->addLayer(); //1
+		imageEditor->setActiveColor("#000000");
 		imageEditor->fillRect(150, 150, 100, 100);
 		imageEditor->blur(15);
 		imageEditor->flipHorizontal();
-		imageEditor->addLayer();
+		imageEditor->addLayer(); //2
+		imageEditor->blur(15);
 		imageEditor->setLayerOpacity(50);
 		imageEditor->setActiveColor("#ABAB56");
 		imageEditor->fillRect(32, 32, 150, 150);
-		imageEditor->eraseRect(32, 32, 55, 55);
-		imageEditor->crop(10, 10, 50, 50);
+		imageEditor->eraseRect(36, 40, 55, 55);
+		imageEditor->crop(10, 10, 1500, 650);
 		imageEditor->flipVertical();
 		imageEditor->selectLayer(0);
 		imageEditor->invertColors();
 		imageEditor->blur(5);
+		imageEditor->selectLayer(1);
+		imageEditor->deleteLayer();
+		imageEditor->selectLayer(0);
+		imageEditor->addLayer(); //2
+		imageEditor->setActiveColor("#000000");
+		imageEditor->setLayerOpacity(75);
+		imageEditor->fillRect(150, 150, 150, 150);
+		imageEditor->selectLayer(0);
+		imageEditor->flipVertical();
+		imageEditor->selectLayer(1);
+		imageEditor->flipHorizontal();
+		
+		
 
 		output = imageEditor->saveImage();
 		break;
@@ -133,7 +147,7 @@ int main() {
 
 	// Ova for petlja ce da pokrene sve testove [0 - 12]. Modifikujte uslov za 'if' da biste pokretali samo odredjene testove (npr: if(testNumber == 1 || testNumber == 5)).
 	for(testNumber = 0; testNumber <= numberOfTests; testNumber++)
-		if(testNumber == testNumber) test();
+		if(testNumber == 0) test();
 
 	return 0;
 }
