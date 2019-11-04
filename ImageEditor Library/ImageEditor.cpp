@@ -148,9 +148,9 @@ void ImageEditor::deleteLayer()
 
 		Layer *old = activeLayer;
 		activeLayer = tmp;
-		old->~Layer();
+		delete old;
 
-		tmp->next = NULL;
+		tmp->next = nullptr;
 	}
 
 	cntLayers--;
@@ -435,10 +435,16 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 	(*currentEditor).g = editor.g;
 	(*currentEditor).r = editor.r;
 
-	for (int i = left; i < right; i++)
-		for (int j = up; j < down; j++)
+	for (int i = up; i < down; i++)
+		for (int j = left; j < right; j++)
+			if(activeLayer->layerMatrix[i][j] == nullptr)
 			activeLayer->layerMatrix[i][j] = new Pixel((*currentEditor).b, (*currentEditor).g, (*currentEditor).r);
-		
+			else
+			{
+				activeLayer->layerMatrix[i][j]->b = (*currentEditor).b;
+				activeLayer->layerMatrix[i][j]->g = (*currentEditor).g;
+				activeLayer->layerMatrix[i][j]->r = (*currentEditor).r;
+			}
 	delete currentEditor;
 }
 

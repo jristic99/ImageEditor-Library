@@ -26,7 +26,6 @@ unsigned char* editImage(unsigned char* input) {
 			Mesto za proizvoljno testiranje koda.
 			Vrsi editovanje slike MyExample.bmp i stvara izlazni fajl MyExample_RESULT.bmp
 		*/
-
 		imageEditor->loadImage(input);
 		imageEditor->addLayer(); //1
 		imageEditor->setActiveColor("#000000");
@@ -37,7 +36,7 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->blur(15);
 		imageEditor->setLayerOpacity(50);
 		imageEditor->setActiveColor("#ABAB56");
-		imageEditor->fillRect(32, 32, 150, 150);
+		imageEditor->fillRect(100, 100, 150, 150);
 		imageEditor->eraseRect(36, 40, 55, 55);
 		imageEditor->crop(10, 10, 1500, 650);
 		imageEditor->flipVertical();
@@ -55,9 +54,8 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->flipVertical();
 		imageEditor->selectLayer(1);
 		imageEditor->flipHorizontal();
-		
-		
-
+		imageEditor->selectLayer(1);
+		imageEditor->flipHorizontal();
 		output = imageEditor->saveImage();
 		break;
 	case 1:																//check
